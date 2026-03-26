@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Báo Cáo Ngày - StudyGuard</title>
+    <meta name="theme-color" content="#10b981">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <style>
+        .report-section {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .date-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .date-input {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-family: inherit;
+        }
+        .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+        table.leaderboard {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+        table.leaderboard th {
+            text-align: left;
+            padding: 10px 15px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+        table.leaderboard td {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        table.leaderboard tr td:first-child {
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+        table.leaderboard tr td:last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .student-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .rank {
+            font-size: 1.2rem;
+            font-weight: bold;
+            width: 30px;
+            text-align: center;
+        }
+        .rank-1 { color: #facc15; } /* Gold */
+        .rank-2 { color: #94a3b8; } /* Silver */
+        .rank-3 { color: #b45309; } /* Bronze */
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        .time-cell {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-enter">
+        <div class="dashboard-header" style="max-width: 800px; margin: 0 auto;">
+            <div class="greeting">
+                <h2>Báo cáo hoạt động</h2>
+                <h1>Bảng xếp hạng ngày</h1>
+            </div>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn-back">⬅ Quay lại</a>
+            </div>
+        </div>
+
+        <div class="report-section">
+            <div class="report-header">
+                <h3>Thống kê ngày</h3>
+                <div class="date-picker-container">
+                    <label for="reportDate">Chọn ngày:</label>
+                    <input type="date" id="reportDate" class="date-input">
+                </div>
+            </div>
+
+            <div id="reportContainer">
+                <!-- Data will be loaded here via JS -->
+                <div class="empty-state">Đang tải dữ liệu...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Need common scripts like utils if any, then admin script -->
+    <script src="/js/admin.js"></script>
+</body>
+</html>

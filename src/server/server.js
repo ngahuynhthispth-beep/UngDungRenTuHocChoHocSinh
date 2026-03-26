@@ -85,6 +85,10 @@ app.get('/student', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'student.html'));
 });
 
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
+});
+
 // Socket.io
 setupSocket(io, db);
 

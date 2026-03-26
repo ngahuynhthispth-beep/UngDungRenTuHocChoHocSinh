@@ -90,4 +90,31 @@ router.get('/stats/today', requireAuth, async (req, res) => {
     }
 });
 
+// GET /api/sessions/admin/daily-report
+router.get('/admin/daily-report', requireAuth, async (req, res) => {
+    const targetDate = req.query.date || new Date().toISOString().split('T')[0];
+    
+    try {
+        // Lấy tất cả học sinh của parent này, LEFT JOIN với study_sessions trong ngày mục tiêu
+        const query = `
+            SELECT 
+                s.id, s.name, s.avatar_color,
+                COUNT(ss.id) as session_count,
+                COALESCE(SUM(ss.total_focus_seconds + ss.total_distracted_seconds + ss.total_not_studying_seconds), 0) as total_time
+            FROM students s
+            LEFT JOIN study_sessions ss ON s.id = ss.student_id AND DATE(ss.start_time) = $2
+            WHERE s.parent_id = $1
+            GROUP BY s.id, s.name, s.avatar_color
+            ORDER BY total_time DESC, s.name ASC
+        `;
+        
+        const { rows: report } = await req.db.query(query, [req.session.userId, targetDate]);
+
+        res.json({ success: true, date: targetDate, report });
+    } catch (err) {
+        console.error('Lỗi khi lấy báo cáo ngày:', err);
+        res.status(500).json({ success: false, message: 'Lỗi server khi lấy báo cáo' });
+    }
+});
+
 module.exports = router;
