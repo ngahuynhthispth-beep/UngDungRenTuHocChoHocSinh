@@ -1,0 +1,30 @@
+{
+  "name": "studyguard",
+  "version": "1.0.0",
+  "description": "App giám sát học sinh tự học qua camera + AI",
+  "main": "src/server/server.js",
+  "scripts": {
+    "dev": "node src/server/server.js",
+    "start": "node src/server/server.js"
+  },
+  "keywords": [
+    "education",
+    "ai",
+    "mediapipe",
+    "study-monitor"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^11.0.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "express-rate-limit": "^8.3.1",
+    "express-session": "^1.18.0",
+    "helmet": "^8.1.0",
+    "pg": "^8.20.0",
+    "socket.io": "^4.7.0"
+  }
+}

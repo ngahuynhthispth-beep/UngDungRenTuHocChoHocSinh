@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Đăng ký - StudyGuard</title>
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card page-enter">
+            <a href="/" class="auth-back">← Quay lại</a>
+
+            <div class="auth-header">
+                <div class="logo-icon">📚</div>
+                <h1>Tạo tài khoản</h1>
+                <p>Đăng ký để bắt đầu giám sát con học tập</p>
+            </div>
+
+            <div class="auth-error" id="errorMsg"></div>
+
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">Tên hiển thị</label>
+                    <input type="text" class="form-input" id="displayName" placeholder="VD: Mẹ Minh" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tên đăng nhập</label>
+                    <input type="text" class="form-input" id="username" placeholder="VD: meminh2026" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu</label>
+                    <input type="password" class="form-input" id="password" placeholder="Ít nhất 6 ký tự" required minlength="6">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                    ✨ Đăng ký
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Đã có tài khoản? <a href="/login">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="/js/auth.js"></script>
+</body>
+</html>

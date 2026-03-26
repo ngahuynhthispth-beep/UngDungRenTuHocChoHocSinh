@@ -1,0 +1,211 @@
+/* Landing Page Styles */
+.landing {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    text-align: center;
+    background: linear-gradient(180deg, #0f172a 0%, #1a2744 50%, #0f172a 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated background circles */
+.landing::before,
+.landing::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.08;
+    animation: float 6s ease-in-out infinite;
+}
+
+.landing::before {
+    width: 400px;
+    height: 400px;
+    background: var(--primary);
+    top: -100px;
+    right: -100px;
+}
+
+.landing::after {
+    width: 300px;
+    height: 300px;
+    background: #6366f1;
+    bottom: -80px;
+    left: -80px;
+    animation-delay: 3s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-30px) scale(1.05); }
+}
+
+.landing-logo {
+    font-size: 64px;
+    margin-bottom: var(--space-md);
+    animation: bounceIn 800ms ease;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.landing h1 {
+    font-size: 36px;
+    background: linear-gradient(135deg, var(--primary), #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--space-sm);
+}
+
+.landing-subtitle {
+    color: var(--text-muted);
+    font-size: 18px;
+    margin-bottom: var(--space-2xl);
+    max-width: 320px;
+}
+
+.landing-features {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+    width: 100%;
+    max-width: 340px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: rgba(30,41,59,0.6);
+    border: 1px solid rgba(51,65,85,0.5);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(10px);
+    text-align: left;
+}
+
+.feature-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.feature-text {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.feature-text strong {
+    color: var(--text);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.landing-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    width: 100%;
+    max-width: 300px;
+    position: relative;
+    z-index: 1;
+}
+
+.landing-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    color: var(--text-dark);
+    font-size: 14px;
+    margin: var(--space-lg) 0;
+    width: 100%;
+    max-width: 300px;
+}
+
+.landing-divider::before,
+.landing-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--surface-light);
+}
+
+.student-link {
+    color: var(--text-muted);
+    font-size: 14px;
+    text-decoration: none;
+    padding: var(--space-md);
+    border-radius: var(--radius-sm);
+    transition: all 200ms ease;
+}
+
+.student-link:hover {
+    color: var(--primary);
+    background: rgba(16,185,129,0.05);
+}
+
+.student-link span {
+    font-size: 20px;
+    margin-right: 6px;
+}
+
+/* Mobile: giảm animation nặng trên điện thoại nhỏ */
+@media (max-width: 480px) {
+    .landing::before {
+        width: 250px;
+        height: 250px;
+        top: -80px;
+        right: -80px;
+    }
+    
+    .landing::after {
+        width: 180px;
+        height: 180px;
+        bottom: -60px;
+        left: -60px;
+    }
+    
+    .landing {
+        padding: var(--space-lg);
+        padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+    }
+    
+    .landing h1 {
+        font-size: 30px;
+    }
+    
+    .landing-subtitle {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 360px) {
+    .landing h1 {
+        font-size: 26px;
+    }
+    
+    .landing-subtitle {
+        font-size: 14px;
+        max-width: 280px;
+    }
+    
+    .landing-logo {
+        font-size: 48px;
+    }
+    
+    .feature-item {
+        padding: var(--space-sm) var(--space-md);
+    }
+    
+    .feature-text {
+        font-size: 13px;
+    }
+}

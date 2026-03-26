@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Dashboard - StudyGuard</title>
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+</head>
+<body>
+    <div class="dashboard page-enter">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="greeting">
+                <h2>Xin chào 👋</h2>
+                <h1 id="userName">Phụ huynh</h1>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="logoutBtn" title="Đăng xuất">🚪</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTime">0p</div>
+                    <div class="stat-label">Thời gian học</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statViolations" style="color: var(--danger);">0</div>
+                    <div class="stat-label">Vi phạm</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statFocus">0%</div>
+                    <div class="stat-label">Tập trung</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students -->
+        <div class="students-section">
+            <div class="section-header">
+                <h2>📚 Con của bạn</h2>
+                <button class="add-btn" id="addStudentBtn" title="Thêm học sinh">+</button>
+            </div>
+
+            <div id="studentList">
+                <!-- Student cards rendered here -->
+                <div class="empty-state" id="emptyState">
+                    <div class="icon">👦</div>
+                    <p>Chưa có học sinh nào.<br>Bấm <strong>+</strong> để thêm con.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <h3>➕ Thêm học sinh</h3>
+            <div class="form-group">
+                <label class="form-label">Tên con</label>
+                <input type="text" class="form-input" id="studentNameInput" placeholder="VD: Minh">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="cancelAddBtn">Hủy</button>
+                <button class="btn btn-primary" id="confirmAddBtn">Thêm</button>
+            </div>
+            <!-- Room code result -->
+            <div class="room-code-display" id="roomCodeResult" style="display:none;">
+                <p style="margin-bottom:8px;">🎉 Mã phòng học:</p>
+                <div class="code" id="generatedCode">---</div>
+                <p>Cho con nhập mã này trên điện thoại</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

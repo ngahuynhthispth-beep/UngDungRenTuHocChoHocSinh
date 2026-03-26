@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Phòng học - StudyGuard</title>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/css/common.css?v=4">
+    <link rel="stylesheet" href="/css/student.css?v=4">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+</head>
+<body>
+    <div class="student-page">
+        <!-- SCREEN 1: Room Code Entry -->
+        <div class="room-entry" id="roomEntry">
+            <div class="logo-icon">📚</div>
+            <h1>Nhập mã phòng học</h1>
+            <p>Hỏi bố mẹ lấy mã phòng nhé!</p>
+
+            <div class="room-input-wrapper">
+                <input type="text" class="room-input" id="roomCodeInput" 
+                       placeholder="------" maxlength="6" autocomplete="off">
+            </div>
+
+            <button class="btn btn-primary btn-block" id="joinBtn" style="max-width:300px;">
+                🚀 Bắt đầu học
+            </button>
+
+            <p class="room-hint">💡 Mã phòng gồm 6 ký tự (chữ và số)</p>
+        </div>
+
+        <!-- SCREEN 2: Study Screen (hidden initially) -->
+        <div class="study-screen" id="studyScreen" style="display:none;">
+            <!-- Header -->
+            <div class="study-header">
+                <div class="timer" id="timer">00:00:00</div>
+                <div id="statusBadge" class="status-badge status-studying">✅ Đang học</div>
+            </div>
+
+            <!-- Camera -->
+            <div class="camera-container" id="cameraContainer">
+                <video id="videoEl" autoplay playsinline="true" webkit-playsinline="true" disablePictureInPicture muted></video>
+                <canvas id="canvasEl"></canvas>
+                <div class="camera-placeholder" id="cameraPlaceholder">
+                    <div class="icon">📷</div>
+                    <p>Đang bật camera...</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="study-footer">
+                <div class="focus-info">
+                    <span class="focus-label">Tập trung</span>
+                    <span class="focus-value" id="focusPercent">100%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill good" id="focusBar" style="width:100%"></div>
+                </div>
+
+                <div class="violation-count" id="violationCount">
+                    ⚠️ Vi phạm: 0 lần
+                </div>
+
+                <button class="btn btn-danger end-btn" id="endSessionBtn">
+                    ⏹ Kết thúc buổi học
+                </button>
+            </div>
+
+            <!-- Alert Overlay -->
+            <div class="alert-overlay" id="alertOverlay"></div>
+
+            <!-- Big Flashing Alert -->
+            <div class="big-flash-alert" id="bigFlashAlert">
+                <h1>⚠️ MẤT TẬP TRUNG ⚠️</h1>
+                <p>Khẩn trương quay lại bài học!</p>
+            </div>
+
+            <!-- Warning Banner -->
+            <div class="warning-banner" id="warningBanner">
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-text">Em hãy học bài thật chăm chỉ!</div>
+                <div class="warning-sub">🔊 Đang phát cảnh báo...</div>
+            </div>
+        </div>
+
+        <!-- Blind Bag Modal (Túi mù) -->
+        <div class="summary-modal" id="blindBagModal">
+            <div class="summary-card">
+                <h2>🎁 Tuyệt vời! Con đã rất tập trung!</h2>
+                <p style="margin-bottom: 20px; color: var(--text-dark);">Con được thưởng 1 túi mù. Chạm vào túi để mở nhé!</p>
+                <div class="blindbag-container" id="blindBagGacha">
+                    <div class="blindbag-item">🛍️</div>
+                </div>
+                <div id="blindBagResult" style="display:none;">
+                    <h3>🎉 Phần thưởng của con 🎉</h3>
+                    <div class="reward-item" id="rewardItem">Đi ăn kem</div>
+                    <button class="btn btn-primary btn-block" id="claimRewardBtn" style="margin-top:20px;">Nhận quà & Xem kết quả</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Summary Modal -->
+        <div class="summary-modal" id="summaryModal">
+            <div class="summary-card">
+                <h2>📊 Kết quả buổi học</h2>
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <div class="value" id="sumTime" style="color:var(--primary)">0p</div>
+                        <div class="label">Thời gian học</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value" id="sumFocus" style="color:var(--primary)">0%</div>
+                        <div class="label">Tập trung</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value" id="sumViolations" style="color:var(--danger)">0</div>
+                        <div class="label">Vi phạm</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value" id="sumDistracted" style="color:var(--warning)">0p</div>
+                        <div class="label">Mất tập trung</div>
+                    </div>
+                </div>
+                <a href="/student" class="btn btn-primary btn-block">👍 Xong</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="/js/student.js?v=4"></script>
+</body>
+</html>

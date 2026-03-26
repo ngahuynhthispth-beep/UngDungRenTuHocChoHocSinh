@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>StudyGuard - Giám sát học tập thông minh</title>
+    <meta name="description" content="App giám sát học sinh tự học qua camera + AI. Nhận diện hành vi, cảnh báo khi mất tập trung.">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="StudyGuard">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/landing.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+</head>
+<body>
+    <div class="landing page-enter">
+        <div class="landing-logo">📚</div>
+        <h1>StudyGuard</h1>
+        <p class="landing-subtitle">Giám sát học tập thông minh bằng AI. Giúp con tập trung học bài tại nhà.</p>
+
+        <div class="landing-features">
+            <div class="feature-item">
+                <span class="feature-icon">🤖</span>
+                <div class="feature-text">
+                    <strong>AI nhận diện hành vi</strong>
+                    Phát hiện khi con mất tập trung
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🔔</span>
+                <div class="feature-text">
+                    <strong>Cảnh báo tức thì</strong>
+                    Nhắc nhở bằng giọng nói + thông báo
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">📊</span>
+                <div class="feature-text">
+                    <strong>Theo dõi từ xa</strong>
+                    Xem trạng thái con real-time
+                </div>
+            </div>
+        </div>
+
+        <div class="landing-buttons">
+            <a href="/login" class="btn btn-primary btn-block">🔑 Đăng nhập</a>
+            <a href="/register" class="btn btn-outline btn-block">✨ Đăng ký tài khoản</a>
+        </div>
+
+        <div class="landing-divider">hoặc</div>
+
+        <a href="/student" class="student-link">
+            <span>👦</span> Em là học sinh → Nhập mã phòng
+        </a>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>
+
