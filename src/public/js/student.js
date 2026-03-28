@@ -33,8 +33,13 @@ const MOVEMENT_THRESHOLD = 0.01; // Minimum wrist movement delta (was 0.015)
 const MOVEMENT_HISTORY = 15;     // Frames to track
 const MOUTH_HISTORY = 15;        // Frames for mouth tracking
 const MOUTH_VARIATION_THRESHOLD = 0.0025; // Sensitivity for mouth movement
-const PLAYING_MOVEMENT_THRESHOLD = 0.04; // Too much movement = playing/fidgeting
-const PLAYING_HEIGHT_THRESHOLD = 0.15;   // Hands too high up = playing
+const PLAYING_MOVEMENT_THRESHOLD = 0.035; // Nhạy hơn chút (was 0.04)
+const PLAYING_HEIGHT_THRESHOLD = 0.15;   
+const PLAYING_GRACE_PERIOD_MS = 7000;    
+const LOOKUP_MAX_MS = 120000;            // Nhìn màn hình "tích cực" tối đa 2 phút
+const IDLE_LOOKUP_MAX_MS = 45000;        // Ngồi thẩn thơ nhìn màn hình tối đa 45s
+const HAND_ON_FACE_MAX_MS = 20000;       // Chống cằm tối đa 20s
+const HAND_ON_FACE_THRESHOLD = 0.08;     // Khoảng cách cổ tay tới mũi
 let previousMouthPositions = []; // Track landmarks 9 (left) and 10 (right)
 
 // Voice alert
@@ -293,9 +298,14 @@ function analyzeBehavior(landmarks) {
     const avgHandDelta = calculateHandMovementDelta();
     const handsHigh = (leftWrist.y < shoulderMidY - PLAYING_HEIGHT_THRESHOLD || rightWrist.y < shoulderMidY - PLAYING_HEIGHT_THRESHOLD);
     const excessiveMovement = avgHandDelta > PLAYING_MOVEMENT_THRESHOLD;
-    const playingDetected = headDown && (handsHigh || excessiveMovement);
+    
+    // PHÁT HIỆN NGHỊCH NGỢM: Nếu tay múa may quá mạnh HOẶC (cúi đầu + dơ tay cao)
+    const playingDetected = excessiveMovement || (headDown && handsHigh);
 
-    // 4. Check side-look (quay trái/phải)
+    // 4. Phát hiện chống cằm (Hand on face)
+    const handOnFace = detectHandOnFace(leftWrist, rightWrist, nose);
+
+    // 5. Check side-look (quay trái/phải)
     const earDist = Math.abs(leftEar.x - rightEar.x);
     const noseToLeft = Math.abs(nose.x - leftEar.x);
     const noseToRight = Math.abs(nose.x - rightEar.x);
@@ -323,10 +333,10 @@ function analyzeBehavior(landmarks) {
             playingStartTime = Date.now();
         }
         const playingDuration = Date.now() - playingStartTime;
-        if (playingDuration > 20000) { // 20s grace period for playing
+        if (playingDuration > PLAYING_GRACE_PERIOD_MS) { 
             newState = 'distracted';
         } else {
-            newState = 'studying'; // Still give benefit of doubt
+            newState = 'studying'; 
         }
     } else {
         playingStartTime = null;
@@ -374,7 +384,17 @@ function analyzeBehavior(landmarks) {
             lookupStartTime = Date.now();
         }
         const lookupDuration = Date.now() - lookupStartTime;
-        if (lookupDuration > 300000) { // 5 phút
+        
+        // Cấu hình deadline dựa trên hoạt động
+        let currentDeadline = LOOKUP_MAX_MS;
+        if (!handMoving && !mouthMoving) {
+            currentDeadline = IDLE_LOOKUP_MAX_MS; // 45s
+        }
+        if (handOnFace) {
+            currentDeadline = Math.min(currentDeadline, HAND_ON_FACE_MAX_MS); // 20s
+        }
+
+        if (lookupDuration > currentDeadline) { 
             newState = 'distracted';
         } else {
             newState = 'studying';
@@ -407,6 +427,21 @@ function detectHandMovement() {
 
     const avgDelta = totalDelta / previousWristPositions.length;
     return avgDelta > MOVEMENT_THRESHOLD;
+}
+
+function detectHandOnFace(left, right, nose) {
+    if (left.visibility < 0.5 && right.visibility < 0.5) return false;
+    
+    // Tính khoảng cách Euclidean giữa cổ tay và mũi
+    if (left.visibility > 0.5) {
+        const dL = Math.sqrt(Math.pow(left.x - nose.x, 2) + Math.pow(left.y - nose.y, 2));
+        if (dL < HAND_ON_FACE_THRESHOLD) return true;
+    }
+    if (right.visibility > 0.5) {
+        const dR = Math.sqrt(Math.pow(right.x - nose.x, 2) + Math.pow(right.y - nose.y, 2));
+        if (dR < HAND_ON_FACE_THRESHOLD) return true;
+    }
+    return false;
 }
 
 function calculateHandMovementDelta() {
@@ -669,11 +704,12 @@ function endSession() {
     // Notify server
     socket.emit('session:end', { room_code: roomCode, summary });
 
-    // Check reward
+    // Check reward: Phải học trên 15 phút (900s) và vi phạm <= 1 mới được thưởng
+    const MIN_STUDY_SECS_FOR_REWARD = 900; 
     const totalMin = Math.round(totalSecs / 60);
     const dMin = Math.round(distractedSeconds / 60);
     
-    if (violationCount <= 1 && totalSecs > 0) {
+    if (violationCount <= 1 && totalSecs >= MIN_STUDY_SECS_FOR_REWARD) {
         showBlindBag(totalMin, focusPct, violationCount, dMin);
     } else {
         showSummaryModal(totalMin, focusPct, violationCount, dMin);
@@ -684,7 +720,13 @@ const rewards = [
     "🎨 Được đi tô tượng", 
     "✏️ Được mua bút chì mới", 
     "🍦 Được đi ăn kem", 
-    "🍕 Được đi ăn pizza"
+    "🍕 Được đi ăn pizza",
+    "🎨 Tặng hộp bút màu mới",
+    "🤖 Được tặng Robot đồ chơi",
+    "♟️ Bộ cờ vua xịn xò",
+    "⏰ Đồng hồ báo thức để dậy sớm",
+    "📒 Cuốn sổ tay ghi chép đẹp",
+    "🧸 Gấu bông nhỏ xinh"
 ];
 
 function showBlindBag(totalMin, focusPct, violationCount, dMin) {
