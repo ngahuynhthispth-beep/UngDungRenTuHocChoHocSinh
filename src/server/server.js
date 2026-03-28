@@ -11,6 +11,7 @@ const { initDB } = require('./db');
 const authRoutes = require('./routes/auth');
 const studentRoutes = require('./routes/students');
 const sessionRoutes = require('./routes/sessions');
+const adminSystemRoutes = require('./routes/admin_system');
 const { setupSocket } = require('./socket');
 
 const app = express();
@@ -63,6 +64,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/admin/system', adminSystemRoutes);
 
 // Page routes
 app.get('/', (req, res) => {
@@ -87,6 +89,10 @@ app.get('/student', (req, res) => {
 
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
+});
+
+app.get('/super-admin', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'super-admin.html'));
 });
 
 // Socket.io

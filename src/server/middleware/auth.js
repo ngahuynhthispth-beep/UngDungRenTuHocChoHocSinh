@@ -6,4 +6,12 @@ function requireAuth(req, res, next) {
     }
 }
 
-module.exports = { requireAuth };
+function requireAdmin(req, res, next) {
+    if (req.session && req.session.userId && req.session.isAdmin) {
+        next();
+    } else {
+        res.status(403).json({ success: false, message: 'Quyền truy cập bị từ chối' });
+    }
+}
+
+module.exports = { requireAuth, requireAdmin };

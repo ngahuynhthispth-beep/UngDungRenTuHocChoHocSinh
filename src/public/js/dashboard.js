@@ -20,6 +20,11 @@ async function checkAuth() {
         const data = await res.json();
         if (data.success) {
             document.getElementById('userName').textContent = data.user.display_name;
+            // Hiển thị nút Quản trị tổng nếu là Admin
+            if (data.user.is_admin) {
+                const adminBtn = document.getElementById('superAdminBtn');
+                if (adminBtn) adminBtn.style.display = 'flex';
+            }
         } else {
             window.location.href = '/login';
         }

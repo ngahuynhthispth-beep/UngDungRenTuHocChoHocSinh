@@ -60,8 +60,16 @@ router.post('/login', async (req, res) => {
 
         req.session.userId = user.id;
         req.session.displayName = user.display_name;
+        req.session.isAdmin = user.is_admin || false;
 
-        res.json({ success: true, user: { id: user.id, display_name: user.display_name } });
+        res.json({ 
+            success: true, 
+            user: { 
+                id: user.id, 
+                display_name: user.display_name,
+                is_admin: user.is_admin || false
+            } 
+        });
     } catch (err) {
         console.error('Login error:', err);
         res.status(500).json({ success: false, message: 'Lỗi server' });
@@ -79,7 +87,11 @@ router.get('/me', (req, res) => {
     if (req.session && req.session.userId) {
         res.json({
             success: true,
-            user: { id: req.session.userId, display_name: req.session.displayName }
+            user: { 
+                id: req.session.userId, 
+                display_name: req.session.displayName,
+                is_admin: req.session.isAdmin || false
+            }
         });
     } else {
         res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
