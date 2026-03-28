@@ -1,5 +1,5 @@
 // StudyGuard Service Worker - Cache tĩnh cho trải nghiệm mượt
-const CACHE_NAME = 'studyguard-v1';
+const CACHE_NAME = 'studyguard-v2';
 const STATIC_ASSETS = [
     '/',
     '/css/common.css',
@@ -10,10 +10,12 @@ const STATIC_ASSETS = [
     '/js/auth.js',
     '/js/dashboard.js',
     '/js/student.js',
+    '/js/admin.js',
     '/login',
     '/register',
     '/student',
-    '/dashboard'
+    '/dashboard',
+    '/admin'
 ];
 
 // Install: cache static assets

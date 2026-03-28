@@ -17,19 +17,29 @@ let distractedSeconds = 0;
 let notStudyingSeconds = 0;
 let violationCount = 0;
 let lastStateChange = Date.now();
-let idleStartTime = null;
+// Separate timers for different behaviors
+let readingStartTime = null;
+let lookupStartTime = null;
+let sideLookStartTime = null;
+let noPoseStartTime = null;
+let playingStartTime = null; // New timer for playing/fidgeting
 
 // AI tracking
 let previousWristPositions = [];
 let stateDebounceTimer = null;
-const STATE_DEBOUNCE_MS = 3000;  // 3 seconds to prevent flickering
-const IDLE_THRESHOLD_MS = 5000;  // 5 seconds (much stricter than 15s)
-const MOVEMENT_THRESHOLD = 0.015; // Minimum wrist movement delta
+const STATE_DEBOUNCE_MS = 5000;  // 5 seconds to prevent flickering (was 3s)
+const IDLE_THRESHOLD_MS = 10000; // 10 seconds (was 5s)
+const MOVEMENT_THRESHOLD = 0.01; // Minimum wrist movement delta (was 0.015)
 const MOVEMENT_HISTORY = 15;     // Frames to track
+const MOUTH_HISTORY = 15;        // Frames for mouth tracking
+const MOUTH_VARIATION_THRESHOLD = 0.0025; // Sensitivity for mouth movement
+const PLAYING_MOVEMENT_THRESHOLD = 0.04; // Too much movement = playing/fidgeting
+const PLAYING_HEIGHT_THRESHOLD = 0.15;   // Hands too high up = playing
+let previousMouthPositions = []; // Track landmarks 9 (left) and 10 (right)
 
 // Voice alert
 let lastAlertTime = 0;
-const ALERT_COOLDOWN_MS = 12000; // 12s cooldown (5s speech + 7s grace)
+const ALERT_COOLDOWN_MS = 60000; // 60s cooldown (was 12s) để tránh làm phiền liên tục
 let alertCount = 0;
 let audioCtx = null;
 
@@ -242,10 +252,14 @@ function initPoseDetection(video, canvas) {
 function analyzeBehavior(landmarks) {
     // Key landmarks
     const nose = landmarks[0];
+    const leftEar = landmarks[7];
+    const rightEar = landmarks[8];
     const leftShoulder = landmarks[11];
     const rightShoulder = landmarks[12];
     const leftWrist = landmarks[15];
     const rightWrist = landmarks[16];
+    const mouthLeft = landmarks[9];
+    const mouthRight = landmarks[10];
 
     // 1. Check body visibility
     const bodyVisible = (leftShoulder.visibility > 0.5 || rightShoulder.visibility > 0.5);
@@ -256,7 +270,7 @@ function analyzeBehavior(landmarks) {
 
     // 2. Head down check (hơi cúi xuống)
     const shoulderMidY = (leftShoulder.y + rightShoulder.y) / 2;
-    const headDown = nose.y > shoulderMidY - 0.08; // Relaxed threshold for slight bow
+    const headDown = nose.y > shoulderMidY - 0.05; // Was 0.08, now 0.05 (Relaxed threshold for slight bow)
 
     // 3. Check wrist movement
     const currentWrist = {
@@ -272,36 +286,102 @@ function analyzeBehavior(landmarks) {
 
     const handMoving = detectHandMovement();
 
-    // 4. Classify state
+    // 4. Check mouth movement (reading aloud/talking)
+    const mouthMoving = detectMouthMovement(mouthLeft, mouthRight, nose);
+
+    // 5. Check for playing/fidgeting (New)
+    const avgHandDelta = calculateHandMovementDelta();
+    const handsHigh = (leftWrist.y < shoulderMidY - PLAYING_HEIGHT_THRESHOLD || rightWrist.y < shoulderMidY - PLAYING_HEIGHT_THRESHOLD);
+    const excessiveMovement = avgHandDelta > PLAYING_MOVEMENT_THRESHOLD;
+    const playingDetected = headDown && (handsHigh || excessiveMovement);
+
+    // 4. Check side-look (quay trái/phải)
+    const earDist = Math.abs(leftEar.x - rightEar.x);
+    const noseToLeft = Math.abs(nose.x - leftEar.x);
+    const noseToRight = Math.abs(nose.x - rightEar.x);
+    // Detect side look if nose is very close to one ear, or one ear is not visible
+    const lookingSide = (noseToLeft < earDist * 0.25 || noseToRight < earDist * 0.25 || leftEar.visibility < 0.3 || rightEar.visibility < 0.3);
+
+    // 5. Classify state
     let newState = currentState;
 
-    if (headDown && handMoving) {
+    // RULE 0: If mouth is moving, they are definitely studying (reading aloud)
+    if (mouthMoving) {
+        newState = 'studying';
+        sideLookStartTime = null;
+        readingStartTime = null;
+        lookupStartTime = null;
+        noPoseStartTime = null;
+        playingStartTime = null;
+        applyState(newState);
+        return; 
+    }
+
+    // RULE 1: If playing/fidgeting detected
+    if (playingDetected) {
+        if (!playingStartTime) {
+            playingStartTime = Date.now();
+        }
+        const playingDuration = Date.now() - playingStartTime;
+        if (playingDuration > 20000) { // 20s grace period for playing
+            newState = 'distracted';
+        } else {
+            newState = 'studying'; // Still give benefit of doubt
+        }
+    } else {
+        playingStartTime = null;
+    }
+
+    if (lookingSide) {
+        // Quay mặt sang trái/phải
+        if (!sideLookStartTime) {
+            sideLookStartTime = Date.now();
+        }
+        const sideLookDuration = Date.now() - sideLookStartTime;
+        if (sideLookDuration > 15000) { // Tăng lên 15 giây theo yêu cầu của user (was 7s)
+            newState = 'distracted';
+        } else {
+            newState = 'studying';
+        }
+        readingStartTime = null;
+        lookupStartTime = null;
+        noPoseStartTime = null;
+        playingStartTime = null;
+    } else if (headDown && handMoving && !playingDetected) {
         // Tối ưu nhất: Đầu cúi xuống và tay đang di chuyển (tay viết bài)
         newState = 'studying';
-        idleStartTime = null;
+        readingStartTime = null;
+        lookupStartTime = null;
+        sideLookStartTime = null;
+        noPoseStartTime = null;
     } else if (headDown && !handMoving) {
         // Đầu cúi xuống nhưng tay không di chuyển (có thể đang đọc bài hoặc suy nghĩ)
-        if (!idleStartTime) {
-            idleStartTime = Date.now();
+        if (!readingStartTime) {
+            readingStartTime = Date.now();
         }
-        const idleDuration = Date.now() - idleStartTime;
-        if (idleDuration > 10000) { // Cho phép ngồi im đọc bài 10 giây
+        const readingDuration = Date.now() - readingStartTime;
+        if (readingDuration > 30000) { // 30s is already long, keeping it or adjust if needed (user asked 10-15s)
             newState = 'distracted';
         } else {
             newState = 'studying'; 
         }
+        lookupStartTime = null;
+        sideLookStartTime = null;
+        noPoseStartTime = null;
     } else if (!headDown) {
-        // Ngẩng đầu lên (nhìn đi chỗ khác hoặc màn hình)
-        if (!idleStartTime) {
-            idleStartTime = Date.now();
+        // Ngẩng đầu lên (nhìn vào camera/màn hình)
+        if (!lookupStartTime) {
+            lookupStartTime = Date.now();
         }
-        const idleDuration = Date.now() - idleStartTime;
-        if (idleDuration > 5000) { // Cho phép ngẩng đầu nghỉ ngơi/điều chỉnh tư thế 5 giây
+        const lookupDuration = Date.now() - lookupStartTime;
+        if (lookupDuration > 300000) { // 5 phút
             newState = 'distracted';
         } else {
-            // Trong thời gian 5 giây ân hạn, nếu trước đó đang học thì vẫn giữ là đang học
-            newState = currentState === 'studying' ? 'studying' : 'distracted';
+            newState = 'studying';
         }
+        readingStartTime = null;
+        sideLookStartTime = null;
+        noPoseStartTime = null;
     }
 
     // Apply state with debounce
@@ -329,14 +409,65 @@ function detectHandMovement() {
     return avgDelta > MOVEMENT_THRESHOLD;
 }
 
-function handleNoPose() {
-    if (!idleStartTime) {
-        idleStartTime = Date.now();
+function calculateHandMovementDelta() {
+    if (previousWristPositions.length < 5) return 0;
+    let totalDelta = 0;
+    for (let i = 1; i < previousWristPositions.length; i++) {
+        const prev = previousWristPositions[i - 1];
+        const curr = previousWristPositions[i];
+        if (curr.lv > 0.5) totalDelta += Math.abs(curr.lx - prev.lx) + Math.abs(curr.ly - prev.ly);
+        if (curr.rv > 0.5) totalDelta += Math.abs(curr.rx - prev.rx) + Math.abs(curr.ry - prev.ry);
     }
-    const idleDuration = Date.now() - idleStartTime;
-    if (idleDuration > 5000) { // 5 seconds with no pose
+    return totalDelta / previousWristPositions.length;
+}
+
+function detectMouthMovement(left, right, nose) {
+    if (left.visibility < 0.3 || right.visibility < 0.3) return false;
+
+    // Track mouth center relative to nose to detect talking
+    const currentMouth = {
+        x: (left.x + right.x) / 2,
+        y: (left.y + right.y) / 2,
+        w: Math.abs(left.x - right.x), // mouth width
+        h_rel: ((left.y + right.y) / 2) - nose.y // height relative to nose
+    };
+
+    previousMouthPositions.push(currentMouth);
+    if (previousMouthPositions.length > MOUTH_HISTORY) {
+        previousMouthPositions.shift();
+    }
+
+    if (previousMouthPositions.length < 5) return false;
+
+    // Calculate variance in width and relative height
+    let varW = 0;
+    let varH = 0;
+    const meanW = previousMouthPositions.reduce((s, p) => s + p.w, 0) / previousMouthPositions.length;
+    const meanH = previousMouthPositions.reduce((s, p) => s + p.h_rel, 0) / previousMouthPositions.length;
+
+    for (const p of previousMouthPositions) {
+        varW += Math.abs(p.w - meanW);
+        varH += Math.abs(p.h_rel - meanH);
+    }
+
+    const avgVar = (varW + varH) / previousMouthPositions.length;
+    
+    // Low threshold to catch subtle speaking movements
+    return avgVar > MOUTH_VARIATION_THRESHOLD;
+}
+
+function handleNoPose() {
+    if (!noPoseStartTime) {
+        noPoseStartTime = Date.now();
+    }
+    const noPoseDuration = Date.now() - noPoseStartTime;
+    if (noPoseDuration > 20000) { // 20 giây khi không thấy người trước camera (was 15s)
         applyState('not_studying');
     }
+    // Khi không thấy người thì tạm dừng các timer khác
+    readingStartTime = null;
+    lookupStartTime = null;
+    sideLookStartTime = null;
 }
 
 // ============ STATE MANAGEMENT ============
@@ -381,7 +512,11 @@ function applyState(newState) {
     } else if (newState === 'studying') {
         // Clear alerts
         clearAlert();
-        idleStartTime = null;
+        readingStartTime = null;
+        lookupStartTime = null;
+        sideLookStartTime = null;
+        noPoseStartTime = null;
+        playingStartTime = null;
     }
 }
 
