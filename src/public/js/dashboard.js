@@ -23,7 +23,10 @@ async function checkAuth() {
             // Hiển thị nút Quản trị tổng nếu là Admin
             if (data.user.is_admin) {
                 const adminBtn = document.getElementById('superAdminBtn');
-                if (adminBtn) adminBtn.style.display = 'flex';
+                if (adminBtn) {
+                    adminBtn.style.display = 'flex';
+                    adminBtn.href = '/teacher-dashboard';
+                }
             }
         } else {
             window.location.href = '/login';

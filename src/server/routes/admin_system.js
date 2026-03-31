@@ -61,4 +61,55 @@ router.get('/parents', requireAdmin, async (req, res) => {
     }
 });
 
+// GET /api/admin/system/students - List all students with study time (Super Admin ONLY)
+router.get('/students', requireAdmin, async (req, res) => {
+    try {
+        const { rows: students } = await req.db.query(`
+            SELECT 
+                s.id, s.name, s.room_code, u.display_name as parent_name,
+                COALESCE(SUM(ss.total_focus_seconds + ss.total_distracted_seconds + ss.total_not_studying_seconds), 0) as total_seconds,
+                MAX(ss.start_time) as last_active
+            FROM students s
+            JOIN users u ON s.parent_id = u.id
+            LEFT JOIN study_sessions ss ON s.id = ss.student_id
+            GROUP BY s.id, u.display_name
+            ORDER BY last_active DESC NULLS LAST
+        `);
+        res.json({ success: true, students });
+    } catch (err) {
+        console.error('Super Admin Students Error:', err);
+        res.status(500).json({ success: false, message: 'Lỗi server khi lấy dữ liệu học sinh' });
+    }
+});
+
+// GET /api/admin/system/online-students - Current monitoring data (Super Admin ONLY)
+router.get('/online-students', requireAdmin, async (req, res) => {
+    try {
+        const io = req.app.get('io');
+        const onlineData = io.getOnlineStudents(); // { studentId: { room_code, state } }
+        const studentIds = Object.keys(onlineData);
+
+        if (studentIds.length === 0) {
+            return res.json({ success: true, students: [] });
+        }
+
+        const { rows: students } = await req.db.query(`
+            SELECT id, name, avatar_color, room_code 
+            FROM students 
+            WHERE id = ANY($1::int[])
+        `, [studentIds.map(id => parseInt(id))]);
+
+        const studentsWithStatus = students.map(s => ({
+            ...s,
+            state: onlineData[s.id].state,
+            room_code: onlineData[s.id].room_code
+        }));
+
+        res.json({ success: true, students: studentsWithStatus });
+    } catch (err) {
+        console.error('Super Admin Online Students Error:', err);
+        res.status(500).json({ success: false, message: 'Lỗi server khi lấy dữ liệu giám sát' });
+    }
+});
+
 module.exports = router;

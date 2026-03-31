@@ -17,6 +17,7 @@ const { setupSocket } = require('./socket');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+app.set('io', io);
 
 // Database
 const db = initDB();
@@ -93,6 +94,10 @@ app.get('/admin', (req, res) => {
 
 app.get('/super-admin', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'super-admin.html'));
+});
+
+app.get('/teacher-dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'teacher-dashboard.html'));
 });
 
 // Socket.io

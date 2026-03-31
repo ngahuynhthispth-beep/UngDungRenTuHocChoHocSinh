@@ -72,7 +72,11 @@ if (loginForm) {
 
             const data = await res.json();
             if (data.success) {
-                window.location.href = '/dashboard';
+                if (data.user && data.user.is_admin) {
+                    window.location.href = '/teacher-dashboard';
+                } else {
+                    window.location.href = '/dashboard';
+                }
             } else {
                 showError(data.message);
                 btn.disabled = false;

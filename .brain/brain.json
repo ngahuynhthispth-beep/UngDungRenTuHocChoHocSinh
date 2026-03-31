@@ -1,0 +1,31 @@
+{
+  "meta": { "schema_version": "1.1.0", "awf_version": "4.0.2" },
+  "project": {
+    "name": "StudyGuard (UngdungRenTuHocChoHocSinh)",
+    "description": "App giám sát học sinh tự học qua camera + AI (MediaPipe)",
+    "status": "In Development - Phase 07 (Integration & Testing)"
+  },
+  "tech_stack": {
+    "frontend": {
+      "language": "HTML/CSS/JS (Vanilla)",
+      "ai_engine": "MediaPipe Pose v0.5",
+      "communication": "Socket.io Client"
+    },
+    "backend": {
+      "language": "Node.js (Express)",
+      "database": "PostgreSQL (Production) / SQLite (Local)",
+      "realtime": "Socket.io Server"
+    }
+  },
+  "business_rules": [
+    { "id": "BR-01", "name": "Strict AI Mode", "logic": "Hand on Face (20s), Idle Lookup (45s), Agitation (7s)" },
+    { "id": "BR-02", "name": "Reward Policy (15m)", "logic": "Min 15m study time + Max 1 violation = Blind Bag" }
+  ],
+  "api_endpoints": [
+    { "path": "/api/students/join", "desc": "Học sinh vào phòng bằng mã 6 ký tự" }
+  ],
+  "knowledge_items": {
+    "patterns": ["Mobile-first responsive CSS", "MediaPipe Camera Utils for continuous frames"],
+    "gotchas": ["PowerShell ExecutionPolicy locks for scripts", "Git credentials required for automated push from agent tools"]
+  }
+}
