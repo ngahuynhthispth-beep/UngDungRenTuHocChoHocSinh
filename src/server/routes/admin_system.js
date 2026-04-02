@@ -112,10 +112,11 @@ router.get('/online-students', requireAdmin, async (req, res) => {
     }
 });
 
-// GET /api/admin/system/rankings - Daily study rankings for all students
+// GET /api/admin/system/rankings - Daily & Weekly study rankings for all students
 router.get('/rankings', requireAdmin, async (req, res) => {
     try {
-        const query = `
+        // 1. Daily rankings (existing)
+        const dailyQuery = `
             SELECT 
                 s.name, 
                 s.avatar_color,
@@ -129,17 +130,37 @@ router.get('/rankings', requireAdmin, async (req, res) => {
             ORDER BY study_day DESC, total_focus_seconds DESC;
         `;
         
-        const { rows: rankings } = await req.db.query(query);
+        // 2. Weekly Top 7 (New cumulative)
+        const weeklyQuery = `
+            SELECT 
+                s.name, 
+                s.avatar_color,
+                SUM(ss.total_focus_seconds) as total_focus_seconds,
+                SUM(ss.violation_count) as total_violations
+            FROM study_sessions ss
+            JOIN students s ON ss.student_id = s.id
+            WHERE ss.start_time >= CURRENT_DATE - INTERVAL '7 days'
+            GROUP BY s.name, s.avatar_color
+            ORDER BY total_focus_seconds DESC
+            LIMIT 7;
+        `;
 
-        // Group by day for easier frontend rendering
-        const groupedRankings = rankings.reduce((acc, row) => {
+        const { rows: dailyRankings } = await req.db.query(dailyQuery);
+        const { rows: weeklyTop7 } = await req.db.query(weeklyQuery);
+
+        // Group daily rankings by day
+        const groupedDaily = dailyRankings.reduce((acc, row) => {
             const day = row.study_day.toISOString().split('T')[0];
             if (!acc[day]) acc[day] = [];
             acc[day].push(row);
             return acc;
         }, {});
 
-        res.json({ success: true, rankings: groupedRankings });
+        res.json({ 
+            success: true, 
+            rankings: groupedDaily,
+            weeklyTop7: weeklyTop7
+        });
     } catch (err) {
         console.error('Rankings Error:', err);
         res.status(500).json({ success: false, message: 'Lỗi server khi lấy bảng xếp hạng' });

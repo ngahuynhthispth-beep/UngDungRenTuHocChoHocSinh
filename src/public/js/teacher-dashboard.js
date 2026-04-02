@@ -146,11 +146,62 @@ function formatDuration(seconds) {
 // Load Rankings
 async function loadRankings() {
     const container = document.getElementById('rankingsContainer');
+    const weeklySection = document.getElementById('weeklyTop7Section');
+    const weeklyContainer = document.getElementById('weeklyTop7Container');
+
     try {
         const res = await fetch('/api/admin/system/rankings');
         const data = await res.json();
         
-        if (data.success && Object.keys(data.rankings).length > 0) {
+        if (!data.success) return;
+
+        // 1. Render Weekly Top 7 (Cộng dồn tuần)
+        if (data.weeklyTop7 && data.weeklyTop7.length > 0) {
+            weeklySection.style.display = 'block';
+            const weeklyRows = data.weeklyTop7.map((s, index) => {
+                const rank = index + 1;
+                let medal = `<div class="rank-medal">${rank}</div>`;
+                if (rank === 1) medal = `<div class="rank-medal">🎖️</div>`;
+                else if (rank <= 3) medal = `<div class="rank-medal">✨</div>`;
+                
+                return `
+                    <tr class="row-top-7">
+                        <td>${medal}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="avatar" style="background:${s.avatar_color || '#6366f1'}; width:30px; height:30px; font-size:0.8rem;">${s.name.charAt(0)}</div>
+                                <strong style="color:#fff;">${s.name}</strong>
+                            </div>
+                        </td>
+                        <td><span class="weekly-badge" style="background:rgba(99, 102, 241, 0.4); border:1px solid var(--primary);">${formatDuration(s.total_focus_seconds)}</span></td>
+                        <td style="color:var(--text-muted);">${s.total_violations} lỗi</td>
+                    </tr>
+                `;
+            }).join('');
+
+            weeklyContainer.innerHTML = `
+                <div class="table-card weekly-card" style="padding:0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:60px;">Thứ hạng</th>
+                                <th>Học sinh xuất sắc</th>
+                                <th>Tổng thời gian học tập</th>
+                                <th>Lỗi nhắc nhở</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${weeklyRows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } else {
+            weeklySection.style.display = 'none';
+        }
+
+        // 2. Render Daily Rankings (Chi tiết từng ngày)
+        if (data.rankings && Object.keys(data.rankings).length > 0) {
             container.innerHTML = Object.keys(data.rankings).map(day => {
                 const dayRankings = data.rankings[day];
                 const dateStr = new Date(day).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });

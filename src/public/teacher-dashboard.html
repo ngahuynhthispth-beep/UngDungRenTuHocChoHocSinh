@@ -253,6 +253,11 @@
         .row-rank-3 { background: rgba(180, 83, 9, 0.1) !important; border-left: 4px solid #b45309; }
         .daily-rank-container { margin-bottom: 40px; }
         .rank-day-title { color: var(--primary); margin: 30px 0 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        
+        /* Weekly Top 7 Specifics */
+        .weekly-card { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(99, 102, 241, 0.1)); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .weekly-badge { background: var(--primary); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+        .row-top-7 { border-left: 4px solid var(--primary); }
     </style>
 </head>
 <body>
@@ -341,9 +346,20 @@
 
             <div id="ranking-section">
                 <div class="section-header">
-                    <h3>🏆 Bảng Vàng Vinh Danh (Theo ngày)</h3>
+                    <h3>🏆 Bảng Vàng Vinh Danh</h3>
                     <span style="color: var(--text-muted); font-size: 0.8rem;">Xếp hạng học tập tập trung nhất</span>
                 </div>
+                
+                <!-- Bảng Tổng Hợp Tuần (Top 7) -->
+                <div id="weeklyTop7Section" style="margin-bottom: 50px; display:none;">
+                    <div class="rank-day-title">
+                        <span>⭐ SIÊU BẢNG VÀNG TUẦN NÀY (TOP 7) ⭐</span>
+                        <span class="weekly-badge">Vinh danh</span>
+                    </div>
+                    <div id="weeklyTop7Container"></div>
+                </div>
+
+                <!-- Bảng Xếp Hạng Hàng Ngày -->
                 <div id="rankingsContainer">
                     <div class="empty-monitor"><p>Đang tổng hợp dữ liệu vinh danh...</p></div>
                 </div>
