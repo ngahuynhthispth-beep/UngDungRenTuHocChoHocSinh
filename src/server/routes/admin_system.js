@@ -142,7 +142,7 @@ router.get('/rankings', requireAdmin, async (req, res) => {
             WHERE ss.start_time >= CURRENT_DATE - INTERVAL '7 days'
             GROUP BY s.name, s.avatar_color
             ORDER BY total_focus_seconds DESC
-            LIMIT 7;
+            LIMIT 10;
         `;
 
         const { rows: dailyRankings } = await req.db.query(dailyQuery);
