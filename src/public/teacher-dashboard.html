@@ -246,6 +246,13 @@
             .main-content { margin-left: 0; }
         }
 
+        /* Leaderboard Decorations */
+        .rank-medal { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; justify-content: center; width: 40px; }
+        .row-rank-1 { background: rgba(245, 158, 11, 0.1) !important; border-left: 4px solid #f59e0b; }
+        .row-rank-2 { background: rgba(148, 163, 184, 0.1) !important; border-left: 4px solid #94a3b8; }
+        .row-rank-3 { background: rgba(180, 83, 9, 0.1) !important; border-left: 4px solid #b45309; }
+        .daily-rank-container { margin-bottom: 40px; }
+        .rank-day-title { color: var(--primary); margin: 30px 0 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
@@ -266,6 +273,12 @@
                     <a href="/super-admin" class="nav-link">
                         <i>👨‍👩‍👧</i>
                         <span>Phụ huynh</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#ranking-section" class="nav-link">
+                        <i>🏆</i>
+                        <span>Bảng vàng</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -323,6 +336,16 @@
             <div class="monitor-grid" id="monitorGrid">
                 <div class="empty-monitor">
                     <p>Đang tìm kiếm học sinh online...</p>
+                </div>
+            </div>
+
+            <div id="ranking-section">
+                <div class="section-header">
+                    <h3>🏆 Bảng Vàng Vinh Danh (Theo ngày)</h3>
+                    <span style="color: var(--text-muted); font-size: 0.8rem;">Xếp hạng học tập tập trung nhất</span>
+                </div>
+                <div id="rankingsContainer">
+                    <div class="empty-monitor"><p>Đang tổng hợp dữ liệu vinh danh...</p></div>
                 </div>
             </div>
 

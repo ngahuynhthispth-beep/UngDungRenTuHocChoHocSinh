@@ -1,22 +1,25 @@
 {
-  "updated_at": "2026-03-28T19:35:00Z",
+  "updated_at": "2026-03-31T12:22:00Z",
   "working_on": {
-    "feature": "Phase 07: Integration & Testing",
-    "status": "Ready for E2E Test",
-    "recent_changes": [
-      { "id": "SC-03", "type": "AI Accuracy", "desc": "Implemented Hand on Face (20s) and Idle Lookup (45s) detection" },
-      { "id": "SC-04", "type": "Rules Update", "desc": "Reduced reward requirement to 15m and expanded gift list" },
-      { "id": "SC-05", "type": "DevOps", "desc": "Fixed PowerShell execution and Git push to Render" }
-    ],
-    "notes": "App is now live on Render. Strict mode active."
+    "feature": "Teacher Dashboard Access",
+    "task": "Fix admin role promotion and link recovery",
+    "status": "completed",
+    "files": [],
+    "blockers": [],
+    "notes": "Manual database update on Neon Postgres for 'admin' user."
   },
   "pending_tasks": [
-    { "task": "Run E2E Scenario 1 (Happy Path)", "priority": "high" },
-    { "task": "Test mobile responsiveness on iPhone/", "priority": "medium" },
-    { "task": "Add Photo Violation capture (optional)", "priority": "low" }
+    { "task": "Add a secret key for teacher registration to avoid manual DB updates", "priority": "low" },
+    { "task": "Test real-time alerts on multiple devices simultaneously", "priority": "medium" }
+  ],
+  "recent_changes": [
+    { "timestamp": "2026-03-31T12:15:00Z", "type": "fix", "description": "Promoted 'admin' user to is_admin: true", "files": ["Neon Database"] },
+    { "timestamp": "2026-03-31T12:05:00Z", "type": "discovery", "description": "Identified Teacher Dashboard route: /teacher-dashboard", "files": ["server.js"] }
+  ],
+  "errors_encountered": [
+    { "error": "User redirected to parent dashboard instead of teacher dashboard", "solution": "Update is_admin flag in the database", "resolved": true }
   ],
   "decisions_made": [
-    { "date": "2026-03-28", "decision": "Use 15m min study for rewards", "reason": "User feedback - 30m was too long" },
-    { "date": "2026-03-28", "decision": "Implement Hand on Face detection", "reason": "Prevent passive behavior" }
+    { "decision": "Directly update Neon production DB for quick fix", "reason": "Immediate fix requested and database is shared with local environment" }
   ]
 }

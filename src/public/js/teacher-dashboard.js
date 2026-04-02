@@ -143,6 +143,72 @@ function formatDuration(seconds) {
     return `${m} phút`;
 }
 
+// Load Rankings
+async function loadRankings() {
+    const container = document.getElementById('rankingsContainer');
+    try {
+        const res = await fetch('/api/admin/system/rankings');
+        const data = await res.json();
+        
+        if (data.success && Object.keys(data.rankings).length > 0) {
+            container.innerHTML = Object.keys(data.rankings).map(day => {
+                const dayRankings = data.rankings[day];
+                const dateStr = new Date(day).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                
+                const tableRows = dayRankings.map((s, index) => {
+                    const rank = index + 1;
+                    let medal = `<div class="rank-medal">${rank}</div>`;
+                    if (rank === 1) medal = `<div class="rank-medal">🥇</div>`;
+                    else if (rank === 2) medal = `<div class="rank-medal">🥈</div>`;
+                    else if (rank === 3) medal = `<div class="rank-medal">🥉</div>`;
+                    
+                    const rowClass = rank <= 3 ? `row-rank-${rank}` : '';
+                    
+                    return `
+                        <tr class="${rowClass}">
+                            <td>${medal}</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div class="avatar" style="background:${s.avatar_color || '#10b981'}; width:30px; height:30px; font-size:0.8rem;">${s.name.charAt(0)}</div>
+                                    <strong>${s.name}</strong>
+                                </div>
+                            </td>
+                            <td><span style="color:var(--primary); font-weight:700;">${formatDuration(s.total_focus_seconds)}</span></td>
+                            <td style="color:var(--warning);">${s.total_violations} lần</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="daily-rank-container">
+                        <h4 class="rank-day-title">📅 ${dateStr}</h4>
+                        <div class="table-card" style="padding:0;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width:60px;">Hạng</th>
+                                        <th>Học sinh</th>
+                                        <th>Thời gian tập trung</th>
+                                        <th>Vi phạm</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            container.innerHTML = '<div class="empty-monitor"><p>Chưa có dữ liệu vinh danh cho tuần này.</p></div>';
+        }
+    } catch (err) {
+        console.error('Rankings load error:', err);
+        container.innerHTML = '<div class="empty-monitor"><p style="color:red;">Lỗi khi tải bảng vinh danh</p></div>';
+    }
+}
+
 // Socket Events
 socket.on('student:online', async (data) => {
     // Optionally fetch full student data if not in memory
@@ -180,9 +246,11 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
 // Init
 checkAuth();
 loadOverview();
+loadRankings();
 loadAllStudents();
 loadMonitoring();
 
 // Auto refresh lists periodically
 setInterval(loadOverview, 60000);
+setInterval(loadRankings, 120000); // 2 mins for rankings
 setInterval(loadAllStudents, 60000);

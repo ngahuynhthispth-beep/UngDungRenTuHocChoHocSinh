@@ -4,6 +4,18 @@ Tất cả những thay đổi quan trọng đối với dự án StudyGuard (Un
 
 ---
 
+## [2026-03-31] - v1.3.0 (Teacher Dashboard & Admin Access)
+
+### 🚀 Added
+- **Teacher Dashboard**: Giao diện quản trị viên chuyên nghiệp với Sidebar, giám sát Real-time toàn hệ thống và thống kê tổng quát.
+- **Role-based Redirection**: Tự động chuyển hướng người dùng có quyền `is_admin` sang `/teacher-dashboard` sau khi đăng nhập.
+
+### 🐛 Fixed
+- **Authentication**: Sửa lỗi tài khoản Giáo viên bị chuyển hướng nhầm về trang Phụ huynh do thiếu quyền `is_admin` trong cơ sở dữ liệu.
+- **Production Access**: Khôi phục quyền truy cập Admin cho tài khoản `admin` trên môi trường Production (Neon Postgres).
+
+---
+
 ## [2026-03-28] - v1.2.0 (Strict AI & Rewards Update)
 
 ### 🚀 Added

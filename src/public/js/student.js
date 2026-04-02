@@ -717,16 +717,14 @@ function endSession() {
 }
 
 const rewards = [
-    "🎨 Được đi tô tượng", 
-    "✏️ Được mua bút chì mới", 
-    "🍦 Được đi ăn kem", 
-    "🍕 Được đi ăn pizza",
-    "🎨 Tặng hộp bút màu mới",
-    "🤖 Được tặng Robot đồ chơi",
-    "♟️ Bộ cờ vua xịn xò",
-    "⏰ Đồng hồ báo thức để dậy sớm",
-    "📒 Cuốn sổ tay ghi chép đẹp",
-    "🧸 Gấu bông nhỏ xinh"
+    "🍭 Tặng một cây kẹo mút ngọt ngào", 
+    "🎨 Tặng một bộ hộp bút màu mới", 
+    "🎀 Tặng một chiếc kẹp tóc xinh xắn", 
+    "🎡 Được đi chơi công viên cùng gia đình",
+    "🍦 Được thưởng một ly kem mát lạnh",
+    "🧸 Tặng một con gấu bông nhỏ đáng yêu",
+    "📒 Một cuốn sổ tay ghi chép đẹp",
+    "🎁 Một món quà bí mật từ Cô Nga"
 ];
 
 function showBlindBag(totalMin, focusPct, violationCount, dMin) {

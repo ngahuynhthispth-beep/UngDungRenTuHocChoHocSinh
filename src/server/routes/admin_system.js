@@ -112,4 +112,38 @@ router.get('/online-students', requireAdmin, async (req, res) => {
     }
 });
 
+// GET /api/admin/system/rankings - Daily study rankings for all students
+router.get('/rankings', requireAdmin, async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                s.name, 
+                s.avatar_color,
+                DATE(ss.start_time) as study_day, 
+                SUM(ss.total_focus_seconds) as total_focus_seconds,
+                SUM(ss.violation_count) as total_violations
+            FROM study_sessions ss
+            JOIN students s ON ss.student_id = s.id
+            WHERE ss.start_time >= CURRENT_DATE - INTERVAL '7 days'
+            GROUP BY s.name, s.avatar_color, study_day
+            ORDER BY study_day DESC, total_focus_seconds DESC;
+        `;
+        
+        const { rows: rankings } = await req.db.query(query);
+
+        // Group by day for easier frontend rendering
+        const groupedRankings = rankings.reduce((acc, row) => {
+            const day = row.study_day.toISOString().split('T')[0];
+            if (!acc[day]) acc[day] = [];
+            acc[day].push(row);
+            return acc;
+        }, {});
+
+        res.json({ success: true, rankings: groupedRankings });
+    } catch (err) {
+        console.error('Rankings Error:', err);
+        res.status(500).json({ success: false, message: 'Lỗi server khi lấy bảng xếp hạng' });
+    }
+});
+
 module.exports = router;
