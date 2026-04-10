@@ -2,33 +2,36 @@
   "meta": { "schema_version": "1.1.0", "awf_version": "4.0.2" },
   "project": {
     "name": "StudyGuard (UngdungRenTuHocChoHocSinh)",
-    "description": "App giám sát học sinh tự học qua camera + AI (MediaPipe)",
-    "status": "In Development - Phase 08 (Institutional Features)"
+    "description": "App giám sát học sinh tự học qua camera + AI (MediaPipe), tích hợp phân tích hành vi và bảng xếp hạng vinh danh.",
+    "status": "In Development - Phase 09 (Analytics & Leaderboard)"
   },
   "tech_stack": {
     "frontend": {
       "language": "HTML/CSS/JS (Vanilla)",
       "ai_engine": "MediaPipe Pose v0.5",
-      "communication": "Socket.io Client"
+      "communication": "Socket.io Client",
+      "design": "Medal-based rankings, Hall of Fame UI"
     },
     "backend": {
       "language": "Node.js (Express)",
-      "database": "PostgreSQL (Production) / SQLite (Local)",
+      "database": "PostgreSQL (Production - Neon) / SQLite (Local)",
       "realtime": "Socket.io Server"
     }
   },
   "business_rules": [
     { "id": "BR-01", "name": "Strict AI Mode", "logic": "Hand on Face (20s), Idle Lookup (45s), Agitation (7s)" },
     { "id": "BR-02", "name": "Reward Policy (15m)", "logic": "Min 15m study time + Max 1 violation = Blind Bag" },
-    { "id": "BR-03", "name": "Institutional Access", "logic": "Admin/Teacher accounts (is_admin=true) are redirected to /teacher-dashboard and have system-wide monitoring" }
+    { "id": "BR-03", "name": "Institutional Access", "logic": "Admin/Teacher accounts (is_admin=true) to /teacher-dashboard" },
+    { "id": "BR-04", "name": "Leaderboard Logic", "logic": "Rank students by daily focused study time with medals (Gold, Silver, Bronze)" }
   ],
   "api_endpoints": [
-    { "path": "/api/students/join", "desc": "Học sinh vào phòng bằng mã 6 ký tự" },
-    { "path": "/teacher-dashboard", "desc": "Giao diện quản lý tập trung cho giáo viên (Admin only)" },
-    { "path": "/api/admin/system/overview", "desc": "Thống kê tổng quát toàn hệ thống" }
+    { "path": "/api/students/join", "desc": "Học sinh vào phòng" },
+    { "path": "/teacher-dashboard", "desc": "Giao diện quản lý tập trung cho giáo viên" },
+    { "path": "/api/admin/system/overview", "desc": "Thống kê tổng quát" },
+    { "path": "/api/analytics/daily", "desc": "Lấy dữ liệu tập trung hàng ngày cho Leaderboard" }
   ],
   "knowledge_items": {
-    "patterns": ["Mobile-first responsive CSS", "MediaPipe Camera Utils for continuous frames"],
-    "gotchas": ["PowerShell ExecutionPolicy locks for scripts", "Git credentials required for automated push from agent tools"]
+    "patterns": ["Mobile-first responsive CSS", "MediaPipe Camera Utils", "Daily analytics aggregation via SQL"],
+    "gotchas": ["PowerShell ExecutionPolicy locks", "Database migration required for analytics table"]
   }
 }

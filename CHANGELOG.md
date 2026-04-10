@@ -4,6 +4,14 @@ Tất cả những thay đổi quan trọng đối với dự án StudyGuard (Un
 
 ---
 
+## [2026-04-10] - v1.4.0 (Leaderboard Expansion)
+
+### 🚀 Added
+- **Leaderboard Expansion**: Mở rộng bảng vinh danh từ Top 10 lên **Top 15** học sinh có thời gian học tập tập trung nhất.
+- **UI Update**: Cập nhật nhãn hiển thị tại Teacher Dashboard để đồng bộ với số lượng vinh danh thực tế.
+
+---
+
 ## [2026-03-31] - v1.3.0 (Teacher Dashboard & Admin Access)
 
 ### 🚀 Added

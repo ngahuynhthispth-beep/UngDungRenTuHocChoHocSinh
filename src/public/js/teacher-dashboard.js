@@ -155,7 +155,7 @@ async function loadRankings() {
         
         if (!data.success) return;
 
-        // 1. Render Weekly Top 7 (Cộng dồn tuần)
+        // 1. Render Weekly Top 15 (Cộng dồn tuần)
         if (data.weeklyTop7 && data.weeklyTop7.length > 0) {
             weeklySection.style.display = 'block';
             const weeklyRows = data.weeklyTop7.map((s, index) => {
