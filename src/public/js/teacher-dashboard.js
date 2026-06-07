@@ -144,10 +144,13 @@ function formatDuration(seconds) {
 }
 
 // Load Rankings
+// Load Rankings
 async function loadRankings() {
     const container = document.getElementById('rankingsContainer');
     const weeklySection = document.getElementById('weeklyTop7Section');
     const weeklyContainer = document.getElementById('weeklyTop7Container');
+    const hallOfFameSection = document.getElementById('hallOfFameSection');
+    const hallOfFameContainer = document.getElementById('hallOfFameContainer');
 
     try {
         const res = await fetch('/api/admin/system/rankings');
@@ -155,52 +158,65 @@ async function loadRankings() {
         
         if (!data.success) return;
 
-        // 1. Render Weekly Top 15 (Cộng dồn tuần)
-        if (data.weeklyTop7 && data.weeklyTop7.length > 0) {
-            weeklySection.style.display = 'block';
-            const weeklyRows = data.weeklyTop7.map((s, index) => {
+        // Helper to render a ranking table
+        const renderRankTable = (rankList, isHallOfFame = false) => {
+            const rows = rankList.map((s, index) => {
                 const rank = index + 1;
                 let medal = `<div class="rank-medal">${rank}</div>`;
                 if (rank === 1) medal = `<div class="rank-medal">🎖️</div>`;
-                else if (rank <= 3) medal = `<div class="rank-medal">✨</div>`;
+                else if (rank <= 3) medal = `<div class="rank-medal">${isHallOfFame ? '🏆' : '✨'}</div>`;
                 
                 return `
-                    <tr class="row-top-7">
+                    <tr class="${isHallOfFame ? 'row-top-7' : 'row-top-7'}">
                         <td>${medal}</td>
                         <td>
                             <div style="display:flex; align-items:center; gap:10px;">
-                                <div class="avatar" style="background:${s.avatar_color || '#6366f1'}; width:30px; height:30px; font-size:0.8rem;">${s.name.charAt(0)}</div>
-                                <strong style="color:#fff;">${s.name}</strong>
+                                <div class="avatar" style="background:${s.avatar_color || '#6366f1'}; width:30px; height:30px; font-size:0.8rem;">${(s.student_name || s.name).charAt(0)}</div>
+                                <strong style="color:#fff;">${s.student_name || s.name}</strong>
                             </div>
                         </td>
                         <td><span class="weekly-badge" style="background:rgba(99, 102, 241, 0.4); border:1px solid var(--primary);">${formatDuration(s.total_focus_seconds)}</span></td>
-                        <td style="color:var(--text-muted);">${s.total_violations} lỗi</td>
+                        <td style="color:var(--text-muted);">${s.total_violations !== undefined ? s.total_violations + ' lỗi' : '-'}</td>
                     </tr>
                 `;
             }).join('');
 
-            weeklyContainer.innerHTML = `
-                <div class="table-card weekly-card" style="padding:0;">
+            return `
+                <div class="table-card weekly-card" style="padding:0; ${isHallOfFame ? 'border-color: #f59e0b; background: rgba(245,158,11,0.05);' : ''}">
                     <table>
                         <thead>
                             <tr>
                                 <th style="width:60px;">Thứ hạng</th>
                                 <th>Học sinh xuất sắc</th>
                                 <th>Tổng thời gian học tập</th>
-                                <th>Lỗi nhắc nhở</th>
+                                <th>Ghi chú</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${weeklyRows}
+                            ${rows}
                         </tbody>
                     </table>
                 </div>
             `;
+        };
+
+        // 1. Render Hall of Fame (Previous week)
+        if (data.hallOfFame && data.hallOfFame.length > 0) {
+            hallOfFameSection.style.display = 'block';
+            hallOfFameContainer.innerHTML = renderRankTable(data.hallOfFame, true);
+        } else {
+            hallOfFameSection.style.display = 'none';
+        }
+
+        // 2. Render Weekly Top 15 (Current week)
+        if (data.weeklyTop7 && data.weeklyTop7.length > 0) {
+            weeklySection.style.display = 'block';
+            weeklyContainer.innerHTML = renderRankTable(data.weeklyTop7, false);
         } else {
             weeklySection.style.display = 'none';
         }
 
-        // 2. Render Daily Rankings (Chi tiết từng ngày)
+        // 3. Render Daily Rankings (Chi tiết từng ngày trong tuần này)
         if (data.rankings && Object.keys(data.rankings).length > 0) {
             container.innerHTML = Object.keys(data.rankings).map(day => {
                 const dayRankings = data.rankings[day];
@@ -292,6 +308,26 @@ socket.on('violation:alert', (data) => {
 document.getElementById('logoutBtn').addEventListener('click', async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     window.location.href = '/login';
+});
+
+// Reset Weekly
+document.getElementById('resetWeeklyBtn').addEventListener('click', async () => {
+    if (!confirm('⚠️ BẠN CÓ CHẮC CHẮN MUỐN RESET TUẦN MỚI?\n\nHành động này sẽ:\n1. Tổng hợp Top 15 vào Bảng Vàng Vinh Danh.\n2. Xoá sạch toàn bộ thời gian học của tuần này.\n3. Thành tích bắt đầu lại từ đầu.')) {
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/admin/system/reset-weekly', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast(data.message || 'Lỗi khi reset', 'error');
+        }
+    } catch (err) {
+        showToast('Lỗi kết nối server', 'error');
+    }
 });
 
 // Init

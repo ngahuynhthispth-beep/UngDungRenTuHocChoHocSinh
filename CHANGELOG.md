@@ -4,11 +4,37 @@ Tất cả những thay đổi quan trọng đối với dự án StudyGuard (Un
 
 ---
 
+## [2026-04-10] - v1.5.0 (Weekly Reset & Hall of Fame)
+
+### 🚀 Added
+- **Automatic Weekly Reset**: Tự động reset bảng vinh danh vào 00:00 sáng Thứ Hai hàng tuần.
+- **Hall of Fame (Bảng Vàng)**: Lưu trữ và hiển thị Top 15 học sinh xuất sắc của tuần trước.
+- **Manual Reset**: Thêm nút "Reset Tuần Mới" cho giáo viên để chủ động làm mới hệ thống.
+- **Data Cleanup**: Tính năng xoá sạch dữ liệu học tập tuần cũ (study_sessions & violations) sau khi đã lưu vinh danh.
+
+---
+
 ## [2026-04-10] - v1.4.0 (Leaderboard Expansion)
 
 ### 🚀 Added
 - **Leaderboard Expansion**: Mở rộng bảng vinh danh từ Top 10 lên **Top 15** học sinh có thời gian học tập tập trung nhất.
 - **UI Update**: Cập nhật nhãn hiển thị tại Teacher Dashboard để đồng bộ với số lượng vinh danh thực tế.
+- **Business Rules & API**:
+  ```json
+  [
+    { "id": "BR-03", "name": "Institutional Access", "logic": "Admin/Teacher accounts (is_admin=true) to /teacher-dashboard" },
+    { "id": "BR-04", "name": "Leaderboard Logic", "logic": "Rank students by daily focused study time with medals (Gold, Silver, Bronze)" },
+    { "id": "BR-05", "name": "Weekly Reset Policy", "logic": "Reset every Monday 00:00. Save Top 15 to weekly_winners, then clear study_sessions." }
+  ],
+  "api_endpoints": [
+    { "path": "/api/students/join", "desc": "Học sinh vào phòng" },
+    { "path": "/teacher-dashboard", "desc": "Giao diện quản lý tập trung cho giáo viên" },
+    { "path": "/api/admin/system/overview", "desc": "Thống kê tổng quát" },
+    { "path": "/api/admin/system/rankings", "desc": "Lấy bảng xếp hạng ngày, tuần và Hall of Fame" },
+    { "path": "/api/admin/system/reset-weekly", "desc": "Reset thủ công bảng vinh danh (Admin only)" },
+    { "path": "/api/analytics/daily", "desc": "Lấy dữ liệu tập trung hàng ngày cho Leaderboard" }
+  ]
+  ```
 
 ---
 

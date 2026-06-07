@@ -13,6 +13,8 @@ const studentRoutes = require('./routes/students');
 const sessionRoutes = require('./routes/sessions');
 const adminSystemRoutes = require('./routes/admin_system');
 const { setupSocket } = require('./socket');
+const rankingService = require('./services/rankingService');
+const lockMiddleware = require('./middleware/lockMiddleware');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,6 +23,7 @@ app.set('io', io);
 
 // Database
 const db = initDB();
+app.set('db', db); // Expose db for lockMiddleware
 
 // Middleware
 app.use(helmet({
@@ -52,7 +55,11 @@ app.use(sessionMiddleware);
 // Share session with Socket.io
 io.engine.use(sessionMiddleware);
 
-// Static files
+// Middleware kiểm tra trạng thái khóa hệ thống (phải chạy trước static để chặn truy cập HTML)
+// lockMiddleware tự động bỏ qua các file có extension (.css, .js, .png...) nên assets vẫn load bình thường
+app.use(lockMiddleware);
+
+// Static files (sau lockMiddleware - assets như CSS/JS vẫn được phục vụ vì lockMiddleware cho phép file có extension đi qua)
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Make db available to routes
@@ -60,6 +67,7 @@ app.use((req, res, next) => {
     req.db = db;
     next();
 });
+
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -102,6 +110,26 @@ app.get('/teacher-dashboard', (req, res) => {
 
 // Socket.io
 setupSocket(io, db);
+
+// --- AUTOMATIC WEEKLY RESET TASK ---
+// Checks every hour if it is Monday 00:00 and performs reset if not already done.
+setInterval(async () => {
+    try {
+        const now = new Date();
+        // 1 is Monday. We check in the first hour of Monday.
+        if (now.getDay() === 1 && now.getHours() === 0) {
+            console.log('⏰ [StudyGuard] Checking automatic weekly reset...');
+            const needed = await rankingService.isResetNeeded(db);
+            if (needed) {
+                console.log('🧹 [StudyGuard] Performing automatic weekly reset...');
+                const result = await rankingService.performWeeklyReset(db);
+                console.log(`✅ [StudyGuard] Auto-reset successful. Vinh danh ${result.count} học sinh.`);
+            }
+        }
+    } catch (err) {
+        console.error('❌ [StudyGuard] Automatic reset error:', err);
+    }
+}, 3600000); // 1 hour
 
 // Start server
 const PORT = process.env.PORT || 3000;

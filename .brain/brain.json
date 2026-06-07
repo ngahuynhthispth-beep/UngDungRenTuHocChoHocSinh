@@ -22,12 +22,15 @@
     { "id": "BR-01", "name": "Strict AI Mode", "logic": "Hand on Face (20s), Idle Lookup (45s), Agitation (7s)" },
     { "id": "BR-02", "name": "Reward Policy (15m)", "logic": "Min 15m study time + Max 1 violation = Blind Bag" },
     { "id": "BR-03", "name": "Institutional Access", "logic": "Admin/Teacher accounts (is_admin=true) to /teacher-dashboard" },
-    { "id": "BR-04", "name": "Leaderboard Logic", "logic": "Rank students by daily focused study time with medals (Gold, Silver, Bronze)" }
+    { "id": "BR-04", "name": "Leaderboard Logic", "logic": "Rank students by daily focused study time with medals (Gold, Silver, Bronze)" },
+    { "id": "BR-05", "name": "Weekly Reset Policy", "logic": "Reset every Monday 00:00. Save Top 15 to weekly_winners, then clear study_sessions." }
   ],
   "api_endpoints": [
     { "path": "/api/students/join", "desc": "Học sinh vào phòng" },
     { "path": "/teacher-dashboard", "desc": "Giao diện quản lý tập trung cho giáo viên" },
     { "path": "/api/admin/system/overview", "desc": "Thống kê tổng quát" },
+    { "path": "/api/admin/system/rankings", "desc": "Lấy bảng xếp hạng ngày, tuần và Hall of Fame" },
+    { "path": "/api/admin/system/reset-weekly", "desc": "Reset thủ công bảng vinh danh (Admin only)" },
     { "path": "/api/analytics/daily", "desc": "Lấy dữ liệu tập trung hàng ngày cho Leaderboard" }
   ],
   "knowledge_items": {

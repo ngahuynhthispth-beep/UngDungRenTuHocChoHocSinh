@@ -307,7 +307,10 @@
                     <h2 id="teacherName">Hệ thống giáo viên</h2>
                     <h1>BẢNG ĐIỀU KHIỂN GIÁO VIÊN</h1>
                 </div>
-                <div class="header-actions">
+                <div class="header-actions" style="display: flex; gap: 10px;">
+                    <button class="btn btn-outline" id="resetWeeklyBtn" style="border-color: var(--danger); color: var(--danger);">
+                        <span>🧹 Reset Tuần Mới</span>
+                    </button>
                     <button class="btn btn-primary" onclick="location.reload()">
                         <span>🔄 Làm mới</span>
                     </button>
@@ -350,7 +353,16 @@
                     <span style="color: var(--text-muted); font-size: 0.8rem;">Xếp hạng học tập tập trung nhất</span>
                 </div>
                 
-                <!-- Bảng Tổng Hợp Tuần (Top 15) -->
+                <!-- Bảng Vàng Vinh Danh Tuần Trước (Hall of Fame) -->
+                <div id="hallOfFameSection" style="margin-bottom: 50px; display:none;">
+                    <div class="rank-day-title" style="color: #f59e0b;">
+                        <span>🏆 VINH DANH TOP 15 TUẦN TRƯỚC 🏆</span>
+                        <span class="weekly-badge" style="background: #f59e0b;">Hall of Fame</span>
+                    </div>
+                    <div id="hallOfFameContainer"></div>
+                </div>
+
+                <!-- Bảng Tổng Hợp Tuần Này (Top 15) -->
                 <div id="weeklyTop7Section" style="margin-bottom: 50px; display:none;">
                     <div class="rank-day-title">
                         <span>⭐ SIÊU BẢNG VÀNG TUẦN NÀY (TOP 15) ⭐</span>

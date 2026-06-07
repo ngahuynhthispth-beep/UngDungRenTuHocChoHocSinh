@@ -45,6 +45,25 @@ function initDB() {
             started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             duration_seconds INTEGER DEFAULT 0
         );
+
+        CREATE TABLE IF NOT EXISTS weekly_winners (
+            id SERIAL PRIMARY KEY,
+            week_start_date DATE NOT NULL,
+            student_name TEXT NOT NULL,
+            avatar_color TEXT,
+            total_focus_seconds INTEGER NOT NULL,
+            rank INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS system_config (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        INSERT INTO system_config (key, value) VALUES ('locked', 'true'), ('lock_start_date', '2026-06-07'), ('lock_reason', 'Hệ thống tự học StudyGuard đang tạm khóa theo yêu cầu của Quản trị viên. Vui lòng liên hệ Admin để được mở khóa.')
+        ON CONFLICT (key) DO NOTHING;
     `).then(() => console.log('✅ PostgreSQL Database initialized'))
       .catch(err => console.error('❌ Database initialization error:', err));
 

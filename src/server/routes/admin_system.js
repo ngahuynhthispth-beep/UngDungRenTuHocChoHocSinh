@@ -1,5 +1,6 @@
 const express = require('express');
 const { requireAdmin } = require('../middleware/auth');
+const rankingService = require('../services/rankingService');
 const router = express.Router();
 
 // GET /api/admin/overview - Get platform-wide statistics (Super Admin ONLY)
@@ -115,7 +116,7 @@ router.get('/online-students', requireAdmin, async (req, res) => {
 // GET /api/admin/system/rankings - Daily & Weekly study rankings for all students
 router.get('/rankings', requireAdmin, async (req, res) => {
     try {
-        // 1. Daily rankings (existing)
+        // 1. Daily rankings (fixed to current week)
         const dailyQuery = `
             SELECT 
                 s.name, 
@@ -125,12 +126,12 @@ router.get('/rankings', requireAdmin, async (req, res) => {
                 SUM(ss.violation_count) as total_violations
             FROM study_sessions ss
             JOIN students s ON ss.student_id = s.id
-            WHERE ss.start_time >= CURRENT_DATE - INTERVAL '7 days'
+            WHERE ss.start_time >= CURRENT_DATE - (CAST(EXTRACT(DOW FROM CURRENT_DATE) AS INTEGER) + 6) % 7
             GROUP BY s.name, s.avatar_color, study_day
             ORDER BY study_day DESC, total_focus_seconds DESC;
         `;
         
-        // 2. Weekly Top 7 (New cumulative)
+        // 2. Weekly Top 15 (Live current week)
         const weeklyQuery = `
             SELECT 
                 s.name, 
@@ -139,14 +140,17 @@ router.get('/rankings', requireAdmin, async (req, res) => {
                 SUM(ss.violation_count) as total_violations
             FROM study_sessions ss
             JOIN students s ON ss.student_id = s.id
-            WHERE ss.start_time >= CURRENT_DATE - INTERVAL '7 days'
+            WHERE ss.start_time >= CURRENT_DATE - (CAST(EXTRACT(DOW FROM CURRENT_DATE) AS INTEGER) + 6) % 7
             GROUP BY s.name, s.avatar_color
             ORDER BY total_focus_seconds DESC
             LIMIT 15;
         `;
 
         const { rows: dailyRankings } = await req.db.query(dailyQuery);
-        const { rows: weeklyTop7 } = await req.db.query(weeklyQuery);
+        const { rows: weeklyTop15 } = await req.db.query(weeklyQuery);
+        
+        // 3. Hall of Fame (Previous week winners)
+        const hallOfFame = await rankingService.getWeeklyWinners(req.db);
 
         // Group daily rankings by day
         const groupedDaily = dailyRankings.reduce((acc, row) => {
@@ -159,11 +163,27 @@ router.get('/rankings', requireAdmin, async (req, res) => {
         res.json({ 
             success: true, 
             rankings: groupedDaily,
-            weeklyTop7: weeklyTop7
+            weeklyTop7: weeklyTop15, // Keep name for compatibility or change to weeklyTop15
+            hallOfFame: hallOfFame
         });
     } catch (err) {
         console.error('Rankings Error:', err);
         res.status(500).json({ success: false, message: 'Lỗi server khi lấy bảng xếp hạng' });
+    }
+});
+
+// POST /api/admin/system/reset-weekly - Perform manual reset (Super Admin ONLY)
+router.post('/reset-weekly', requireAdmin, async (req, res) => {
+    try {
+        const result = await rankingService.performWeeklyReset(req.db);
+        res.json({
+            success: true,
+            message: `Hệ thống đã reset thành công. Đã vinh danh ${result.count} học sinh cho tuần bắt đầu từ ${result.week_start}.`,
+            data: result
+        });
+    } catch (err) {
+        console.error('Manual Reset Error:', err);
+        res.status(500).json({ success: false, message: 'Lỗi khi thực hiện reset hệ thống' });
     }
 });
 

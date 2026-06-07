@@ -1,24 +1,24 @@
 {
-  "updated_at": "2026-04-02T20:45:00Z",
+  "updated_at": "2026-04-10T14:45:00Z",
   "working_on": {
-    "feature": "Student Leaderboard Analytics (Hall of Fame)",
-    "task": "Tích hợp biểu đồ và huy chương vào dashboard giáo viên",
+    "feature": "Weekly Reset & Hall of Fame",
+    "task": "Tích hợp tính năng tự động reset hàng tuần và lưu trữ Bảng Vàng",
     "status": "completed",
-    "files": ["server.js", "public/teacher_dashboard.html"],
-    "notes": "Hệ thống xếp hạng theo thời gian học tập trung thực tế, tự động cập nhật hàng ngày."
+    "files": ["src/server/server.js", "src/server/services/rankingService.js", "src/public/js/teacher-dashboard.js"],
+    "notes": "Hệ thống tự động lưu Top 15 và xoá sạch dữ liệu vào 00:00 thứ Hai hàng tuần."
   },
   "recent_changes": [
+    {
+      "timestamp": "2026-04-10T14:40:00Z",
+      "type": "feature",
+      "description": "Thêm tính năng Tự động Reset và Vinh danh Top 15 hàng tuần.",
+      "files": ["src/server/server.js", "src/server/services/rankingService.js", "src/server/db.js", "src/public/teacher-dashboard.html"]
+    },
     {
       "timestamp": "2026-04-02T08:00:00Z",
       "type": "feature",
       "description": "Thêm tính năng Bảng vinh danh (Hall of Fame) với huy chương Vàng, Bạc, Đồng.",
       "files": ["server.js", "public/teacher_dashboard.html", "src/api/analytics.js"]
-    },
-    {
-      "timestamp": "2026-04-01T15:00:00Z",
-      "type": "deployment",
-      "description": "Deploy thành công lên Render và kết nối Neon PostgreSQL cho dữ liệu analytics.",
-      "files": ["render.yaml", "package.json"]
     }
   ],
   "errors_encountered": [
@@ -26,12 +26,12 @@
   ],
   "decisions_made": [
     {
-      "decision": "Dùng huy chương (Medals) thay vì chỉ số",
-      "reason": "Tăng tính khích lệ cho học sinh tiểu học, dễ quan sát từ xa."
+      "decision": "Dùng setInterval cho scheduler",
+      "reason": "Tránh phụ thuộc vào node-cron khi môi trường bị hạn chế quyền cài đặt, đảm bảo tính gọn nhẹ cho ứng dụng."
     },
     {
-      "decision": "Lấy dữ liệu tập trung qua SQL Query",
-      "reason": "Hiệu quả hơn so với xử lý dữ liệu thô trên client-side."
+      "decision": "Lưu snapshot Top 15 vào bảng riêng",
+      "reason": "Để bảo toàn lịch sử thành tích khi thực hiện xoá sạch dữ liệu định kỳ."
     }
   ]
 }
