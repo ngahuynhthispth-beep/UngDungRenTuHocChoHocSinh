@@ -13,8 +13,6 @@ const studentRoutes = require('./routes/students');
 const sessionRoutes = require('./routes/sessions');
 const adminSystemRoutes = require('./routes/admin_system');
 const { setupSocket } = require('./socket');
-const lockMiddleware = require('./middleware/lockMiddleware');
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -54,7 +52,7 @@ app.use(sessionMiddleware);
 io.engine.use(sessionMiddleware);
 
 // Static files
-app.use(lockMiddleware);
+app.use((req, res, next) => { if (process.env.SYSTEM_LOCKED === 'true') { if (req.path.startsWith('/api/')) { return res.status(423).json({ success: false, message: 'He thong dang tam khoa.' }); } const accept = req.headers.accept || ''; if (accept.includes('text/html') || !req.path.includes('.')) { return res.status(423).send('<html><head><meta charset="UTF-8"><title>Tam Khoa</title><style>body{font-family:sans-serif;background:#090d16;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;margin:0}.card{background:rgba(17,25,40,.9);border-radius:24px;padding:48px;max-width:440px;text-align:center}.icon{font-size:64px}.title{font-size:26px;font-weight:800;margin:16px 0}.msg{color:#94a3b8;line-height:1.6}</style></head><body><div class="card"><div class="icon">🔒</div><div class="title">StudyGuard Lockout</div><p class="msg">He thong dang tam khoa theo yeu cau cua Quan tri vien. Vui long lien he Admin de duoc mo khoa.</p></div></body></html>'); } } next(); });
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Make db available to routes
