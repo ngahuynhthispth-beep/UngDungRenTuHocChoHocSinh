@@ -13,6 +13,7 @@ const studentRoutes = require('./routes/students');
 const sessionRoutes = require('./routes/sessions');
 const adminSystemRoutes = require('./routes/admin_system');
 const { setupSocket } = require('./socket');
+const lockMiddleware = require('./middleware/lockMiddleware');
 
 const app = express();
 const server = http.createServer(app);
@@ -53,6 +54,7 @@ app.use(sessionMiddleware);
 io.engine.use(sessionMiddleware);
 
 // Static files
+app.use(lockMiddleware);
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Make db available to routes
