@@ -496,7 +496,7 @@ function handleNoPose() {
         noPoseStartTime = Date.now();
     }
     const noPoseDuration = Date.now() - noPoseStartTime;
-    if (noPoseDuration > 20000) { // 20 giây khi không thấy người trước camera (was 15s)
+    if (noPoseDuration >= 10000) { // Đã chỉnh xuống đúng 10 giây khi không thấy người trước camera
         applyState('not_studying');
     }
     // Khi không thấy người thì tạm dừng các timer khác
@@ -518,9 +518,10 @@ function applyState(newState) {
         return;
     }
 
-    // Debounce: don't change state too quickly
-    if (stateDebounceTimer) return;
+    // Debounce: don't change state too quickly (trừ khi là 'not_studying' rời màn hình cần phản hồi ngay)
+    if (stateDebounceTimer && newState !== 'not_studying') return;
 
+    if (stateDebounceTimer) clearTimeout(stateDebounceTimer);
     stateDebounceTimer = setTimeout(() => {
         stateDebounceTimer = null;
     }, STATE_DEBOUNCE_MS);

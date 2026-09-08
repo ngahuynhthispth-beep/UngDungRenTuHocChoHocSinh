@@ -64,6 +64,30 @@ function initDB() {
 
         INSERT INTO system_config (key, value) VALUES ('locked', 'true'), ('lock_start_date', '2026-06-07'), ('lock_reason', 'Hệ thống tự học StudyGuard đang tạm khóa theo yêu cầu của Quản trị viên. Vui lòng liên hệ Admin để được mở khóa.')
         ON CONFLICT (key) DO NOTHING;
+
+        CREATE TABLE IF NOT EXISTS questions (
+            id SERIAL PRIMARY KEY,
+            teacher_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            subject TEXT DEFAULT 'Chung',
+            question TEXT NOT NULL,
+            option_a TEXT NOT NULL,
+            option_b TEXT NOT NULL,
+            option_c TEXT NOT NULL,
+            option_d TEXT NOT NULL,
+            correct_answer TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS quiz_results (
+            id SERIAL PRIMARY KEY,
+            session_id INTEGER REFERENCES study_sessions(id) ON DELETE SET NULL,
+            student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+            question_id INTEGER NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+            quiz_type TEXT NOT NULL,
+            answer TEXT,
+            is_correct BOOLEAN,
+            answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
     `).then(() => console.log('✅ PostgreSQL Database initialized'))
       .catch(err => console.error('❌ Database initialization error:', err));
 

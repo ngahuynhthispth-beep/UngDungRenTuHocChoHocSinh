@@ -12,6 +12,7 @@ const authRoutes = require('./routes/auth');
 const studentRoutes = require('./routes/students');
 const sessionRoutes = require('./routes/sessions');
 const adminSystemRoutes = require('./routes/admin_system');
+const quizRoutes = require('./routes/quiz');
 const { setupSocket } = require('./socket');
 const rankingService = require('./services/rankingService');
 const lockMiddleware = require('./middleware/lockMiddleware');
@@ -76,6 +77,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/admin/system', adminSystemRoutes);
+app.use('/api/quiz', quizRoutes);
 
 // Page routes
 app.get('/', (req, res) => {

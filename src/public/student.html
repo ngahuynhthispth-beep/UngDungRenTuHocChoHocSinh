@@ -130,6 +130,61 @@
                 <a href="/student" class="btn btn-primary btn-block">👍 Xong</a>
             </div>
         </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- QUIZ POPUP BẤT NGỜ (giữa buổi học - 60s)  -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="summary-modal" id="quizPopupModal" style="display:none; z-index:99999;">
+            <div class="summary-card" style="max-width:520px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-size:13px;color:var(--text-muted);font-weight:600;">⚡ KIỂM TRA NHANH</span>
+                    <div id="quizCountdown" style="background:#ef4444;color:#fff;border-radius:20px;padding:4px 14px;font-weight:800;font-size:15px;">60s</div>
+                </div>
+                <div id="quizSubject" style="font-size:11px;color:var(--primary);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;"></div>
+                <h3 id="quizQuestion" style="font-size:17px;line-height:1.5;margin-bottom:20px;"></h3>
+                <div id="quizOptions" style="display:flex;flex-direction:column;gap:10px;"></div>
+                <div id="quizFeedback" style="display:none;margin-top:16px;padding:12px;border-radius:12px;font-weight:600;text-align:center;"></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- QUIZ CUỐI BUỔI (bắt buộc hoàn thành)       -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="summary-modal" id="quizFinalModal" style="display:none; z-index:99998;">
+            <div class="summary-card" style="max-width:560px;max-height:90vh;overflow-y:auto;">
+                <!-- Màn hình câu hỏi -->
+                <div id="quizFinalScreen">
+                    <div style="text-align:center;margin-bottom:20px;">
+                        <div style="font-size:32px;">📝</div>
+                        <h2 style="margin:8px 0;">Bài kiểm tra cuối buổi</h2>
+                        <p style="color:var(--text-muted);font-size:13px;">Hoàn thành để kết thúc buổi học nhé!</p>
+                        <div style="display:flex;justify-content:center;gap:6px;margin-top:12px;" id="quizDots"></div>
+                    </div>
+
+                    <!-- Một câu hỏi tại 1 thời điểm -->
+                    <div id="quizFinalQuestion">
+                        <div id="finalQuizSubject" style="font-size:11px;color:var(--primary);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;"></div>
+                        <div id="finalQuizProgress" style="font-size:12px;color:var(--text-muted);margin-bottom:12px;"></div>
+                        <h3 id="finalQuizText" style="font-size:17px;line-height:1.5;margin-bottom:20px;"></h3>
+                        <div id="finalQuizOptions" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;"></div>
+                        <button class="btn btn-primary btn-block" id="finalQuizNextBtn" style="display:none;">
+                            Câu tiếp theo →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Màn hình kết quả cuối -->
+                <div id="quizFinalResult" style="display:none;text-align:center;">
+                    <div style="font-size:48px;" id="quizResultEmoji">🎉</div>
+                    <h2 id="quizResultTitle" style="margin:12px 0;"></h2>
+                    <div style="font-size:48px;font-weight:800;color:var(--primary);margin:16px 0;" id="quizScore"></div>
+                    <p id="quizResultMsg" style="color:var(--text-muted);margin-bottom:24px;"></p>
+                    <button class="btn btn-primary btn-block" id="quizFinalDoneBtn">
+                        ✅ Xem kết quả buổi học
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="toast-container" id="toastContainer"></div>
@@ -139,6 +194,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.js" crossorigin="anonymous"></script>
-    <script src="/js/student.js?v=4"></script>
+    <script src="/js/student.js?v=5"></script>
 </body>
 </html>
